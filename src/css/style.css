@@ -1,39 +1,37 @@
-/* src/css/styles.css */
 :root {
-  --color-1: #eeeeee;
-  --color-2: #3f1052;
-  --color-3: #ffffff;
+  --color-1: #f5f5f5; /* Light gray background */
+  --color-2: #4d2d5c; /* Purple accent */
+  --color-3: #ffffff; /* White text */
   --font: 'Arial', sans-serif;
 }
 
 body {
   font-family: var(--font);
-  background-color: var(--color-3);
+  background-color: var(--color-1);
   margin: 0;
 }
 
 h1 {
   text-align: center;
   color: var(--color-2);
-  animation: fadeIn 1s ease-out; /* Fade-in animation for the heading */
+  animation: fadeIn 1s ease-out;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  box-shadow: 0 9px 13px rgba(0, 0, 0, 0.4);
-  background-color: var(--color-1);
-  animation: fadeIn 1s ease-out; /* Fade-in animation for the table */
+  box-shadow: 0 9px 13px rgba(0, 0, 0, 0.2);
+  background-color: var(--color-3);
+  animation: fadeIn 1s ease-out;
   border-radius: 4px;
 }
 
-th,
-td {
-  border: 1px solid var(--color-3);
+th, td {
+  border: 1px solid var(--color-1);
   padding: 10px;
   text-align: center;
-  transition: background-color 0.3s ease-out; /* Smooth transition for background color change */
+  transition: background-color 0.3s ease-out;
 }
 
 th {
@@ -47,16 +45,14 @@ img {
   max-height: 50px;
   border-radius: 50%;
   display: block;
-  margin: auto; /* Center images */
+  margin: auto;
 }
 
-/* Hover effect for table rows */
 tr:hover {
-  background-color: rgba(63, 16, 82, 0.1);
+  background-color: rgba(77, 45, 92, 0.1); /* Light purple on hover */
   cursor: pointer;
 }
 
-/* Media query for tablet and desktop screens */
 @media only screen and (min-width: 768px) {
   table {
     width: 80%;
@@ -64,37 +60,21 @@ tr:hover {
   }
 }
 
-/* Media query for  mobile */
 @media only screen and (max-width: 767px) {
   table {
     width: 100%;
   }
 
-  /* Hide columns on mobile view */
-  th,
-  td {
+  th, td {
     display: none;
   }
 
-  /* Show specific columns on mobile view */
-  td.mobile-rank,
-  td.mobile-logo,
-  td.mobile-team-name,
-  td.mobile-games,
-  td.mobile-goals-diff,
-  td.mobile-points,
-  /* Show specific Table header on mobile view */
-   th.mobile-rank,
-   th.mobile-logo,
-   th.mobile-team-name,
-   th.mobile-games,
-   th.mobile-goals-diff,
-   th.mobile-points {
-     display: table-cell;
-   }
+  td.mobile-rank, td.mobile-logo, td.mobile-team-name, td.mobile-games, td.mobile-goals-diff, td.mobile-points,
+  th.mobile-rank, th.mobile-logo, th.mobile-team-name, th.mobile-games, th.mobile-goals-diff, th.mobile-points {
+    display: table-cell;
+  }
 }
 
-/* Fade-in animation keyframes */
 @keyframes fadeIn {
   from {
     opacity: 0;

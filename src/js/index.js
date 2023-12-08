@@ -16,62 +16,73 @@ const cacheFilePath = path.join(__dirname, 'teamDataCache.json');
 // Serve static files from the 'src' directory
 app.use(express.static(path.join(__dirname, '/../')));
 
+let teamData = null;
+let lastUpdated = null;
+
+// Function to check if the cache has expired
+const isCacheExpired = () => {
+  // Set your desired cache expiration time (e.g., 5 minutes)
+  const cacheExpirationTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+  return !lastUpdated || (Date.now() - lastUpdated) > cacheExpirationTime;
+};
+
+// Function to fetch data from the API and update the cache
+const fetchDataAndUpdateCache = async () => {
+  try {
+    const response = await axios.get('https://livescore-football.p.rapidapi.com/soccer/league-table', {
+      params: {
+        country_code: 'england',
+        league_code: 'premier-league'
+      },
+      headers: {
+        'X-RapidAPI-Key': process.env.RAPID_API_KEY,
+        'X-RapidAPI-Host': 'livescore-football.p.rapidapi.com'
+      }
+    });
+
+    if (
+      response.data &&
+      response.data.data &&
+      response.data.data.total &&
+      response.data.data.total.length === 20
+    ) {
+      teamData = response.data.data.total.map(team => ({
+        rank: team.rank,
+        team_logo: team.team_logo,
+        team_name: team.team_name,
+        games_played: team.games_played,
+        won: team.won,
+        draw: team.draw,
+        lost: team.lost,
+        goals_for: team.goals_for,
+        goals_against: team.goals_against,
+        goals_diff: team.goals_diff,
+        points: team.points
+      }));
+
+      lastUpdated = Date.now();
+
+      // Update the teamDataCache.json file
+      await fs.writeFile(cacheFilePath, JSON.stringify({ data: teamData, lastUpdated }), 'utf8');
+    }
+  } catch (error) {
+    console.error('Error fetching data from the API:', error.message);
+  }
+};
+
+// Middleware to check and update the cache
+app.use(async (req, res, next) => {
+  if (isCacheExpired()) {
+    // If the cache has expired, fetch live data from the API and update the cache
+    await fetchDataAndUpdateCache();
+  }
+
+  next();
+});
+
 app.get('/', async (req, res) => {
   try {
-    let teamData;
-
-    // Check if there is cached data
-    try {
-      const cachedData = await fs.readFile(cacheFilePath, 'utf8');
-      teamData = JSON.parse(cachedData);
-    } catch (error) {
-      console.error('Error reading cached data:', error);
-      teamData = null;
-    }
-
-    if (!teamData) {
-      // Fetch data from the Livescore Football API
-      const response = await axios.get('https://livescore-football.p.rapidapi.com/soccer/league-table', {
-        params: {
-          country_code: 'england',
-          league_code: 'premier-league'
-        },
-        headers: {
-          'X-RapidAPI-Key': process.env.RAPID_API_KEY,
-          'X-RapidAPI-Host': 'livescore-football.p.rapidapi.com'
-        }
-      });
-
-      // Check if the response contains the expected structure
-      if (
-        response.data &&
-        response.data.data &&
-        response.data.data.total &&
-        response.data.data.total.length === 20
-      ) {
-        // Extract team data from the API response
-        teamData = response.data.data.total.map(team => ({
-          rank: team.rank,
-          team_logo: team.team_logo,
-          team_name: team.team_name,
-          games_played: team.games_played,
-          won: team.won,
-          draw: team.draw,
-          lost: team.lost,
-          goals_for: team.goals_for,
-          goals_against: team.goals_against,
-          goals_diff: team.goals_diff,
-          points: team.points
-        }));
-
-        // Cache the data for future use
-        await fs.writeFile(cacheFilePath, JSON.stringify(teamData), 'utf8');
-      } else {
-        // If the response structure is unexpected, send an error response
-        return res.status(500).send('Internal Server Error: Unexpected API response structure');
-      }
-    }
-
     // Read the HTML file
     const htmlFile = await fs.readFile(indexPath, 'utf8');
 

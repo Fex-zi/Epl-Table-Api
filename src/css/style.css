@@ -60,6 +60,7 @@ tr:hover {
   }
 }
 
+/* Mobile view to hide some table datas */
 @media only screen and (max-width: 767px) {
   table {
     width: 100%;
